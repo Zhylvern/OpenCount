@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>OpenCount</title>
+    <style>
+      :root {
+        --bg-1: #f8fafc;
+        --bg-2: #eef2f7;
+        --card: #ffffff;
+        --ink: #111827;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --accent: #0f766e;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 320px;
+        height: 240px;
+        min-width: 300px;
+        min-height: 220px;
+        font-family: "Avenir Next", "Futura", "Gill Sans", sans-serif;
+        background: linear-gradient(160deg, var(--bg-2), var(--bg-1));
+        color: var(--ink);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        padding: 12px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+      }
+      .header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+      .badge {
+        font-size: 10px;
+        font-weight: 600;
+        color: #fff;
+        background: var(--accent);
+        padding: 4px 8px;
+        border-radius: 999px;
+      }
+      .subtitle {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      #list {
+        overflow-y: auto;
+        padding-right: 2px;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 10px;
+      }
+      .row:nth-child(even) {
+        background: #f3f4f6;
+      }
+      .row:hover {
+        background: #eef2f7;
+      }
+      .domain {
+        font-weight: 700;
+        font-size: 13px;
+        word-break: break-word;
+      }
+      .stats {
+        font-size: 11px;
+        color: var(--muted);
+        white-space: nowrap;
+        padding: 4px 8px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: #f8fafc;
+      }
+      .note {
+        font-size: 11px;
+        color: var(--muted);
+        padding: 6px 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="header">
+        <div>
+          <h1>OpenCount</h1>
+          <div class="subtitle">Active time by domain</div>
+        </div>
+        <div class="badge">Live</div>
+      </div>
+      <div id="list">
+        <div class="note">Loading stats...</div>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

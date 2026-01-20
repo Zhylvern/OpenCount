@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "OpenCount",
+  "version": "1.0.0",
+  "description": "Track visit counts and active time by domain.",
+  "permissions": ["tabs", "storage"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_title": "OpenCount",
+    "default_popup": "popup.html"
+  }
+}
