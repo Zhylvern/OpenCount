@@ -2,6 +2,9 @@ const OVERLAY_ID = "opencount-overlay";
 const CLOSE_KEY = "opencount-overlay-hidden";
 const REFRESH_MS = 1000;
 
+let overlayParts = null;
+let refreshTimerId = null;
+
 function formatTime(ms) {
   const totalSeconds = Math.round(ms / 1000);
   const minutes = Math.floor(totalSeconds / 60);
@@ -69,6 +72,11 @@ function createOverlay() {
   closeButton.addEventListener("click", async () => {
     await browser.storage.local.set({ [CLOSE_KEY]: true });
     container.remove();
+    if (refreshTimerId) {
+      window.clearInterval(refreshTimerId);
+      refreshTimerId = null;
+    }
+    overlayParts = null;
   });
 
   const timeEl = document.createElement("div");
@@ -109,19 +117,54 @@ async function shouldHide() {
   return result[CLOSE_KEY] === true;
 }
 
+function isImmersiveMode() {
+  return Boolean(
+    document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement ||
+      document.pointerLockElement
+  );
+}
+
+async function syncOverlayVisibility() {
+  if (!overlayParts) return;
+  if (await shouldHide()) {
+    overlayParts.container.style.display = "none";
+    return;
+  }
+  overlayParts.container.style.display = isImmersiveMode() ? "none" : "flex";
+}
+
 async function start() {
   if (!isTopFrame()) return;
-  if (document.getElementById(OVERLAY_ID)) return;
+  if (document.getElementById(OVERLAY_ID)) {
+    await syncOverlayVisibility();
+    return;
+  }
   if (await shouldHide()) return;
 
-  const parts = createOverlay();
-  document.documentElement.appendChild(parts.container);
-  updateOverlay(parts);
+  overlayParts = createOverlay();
+  document.documentElement.appendChild(overlayParts.container);
+  updateOverlay(overlayParts);
+  await syncOverlayVisibility();
 
-  const intervalId = window.setInterval(() => updateOverlay(parts), REFRESH_MS);
+  refreshTimerId = window.setInterval(
+    () => updateOverlay(overlayParts),
+    REFRESH_MS
+  );
   window.addEventListener("beforeunload", () => {
-    window.clearInterval(intervalId);
+    if (refreshTimerId) {
+      window.clearInterval(refreshTimerId);
+      refreshTimerId = null;
+    }
   });
+
+  document.addEventListener("fullscreenchange", syncOverlayVisibility);
+  document.addEventListener("webkitfullscreenchange", syncOverlayVisibility);
+  document.addEventListener("mozfullscreenchange", syncOverlayVisibility);
+  document.addEventListener("MSFullscreenChange", syncOverlayVisibility);
+  document.addEventListener("pointerlockchange", syncOverlayVisibility);
 }
 
 start();
