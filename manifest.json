@@ -23,6 +23,7 @@
     "gecko": {
       "id": "opencount@nonary.software",
       "data_collection_permissions": {
+        "required": ["none"],
         "collects_personal_data": false,
         "collects_browsing_activity": false,
         "collects_website_content": false,
