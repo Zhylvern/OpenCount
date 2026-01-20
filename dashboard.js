@@ -210,6 +210,90 @@ function drawTrend(canvas, days) {
   });
 }
 
+function parseColorToRgb(value) {
+  const trimmed = value.trim();
+  if (trimmed.startsWith("#")) {
+    const hex = trimmed.slice(1);
+    const normalized =
+      hex.length === 3
+        ? hex
+            .split("")
+            .map((char) => char + char)
+            .join("")
+        : hex;
+    const number = Number.parseInt(normalized, 16);
+    return {
+      r: (number >> 16) & 255,
+      g: (number >> 8) & 255,
+      b: number & 255,
+    };
+  }
+  const match = trimmed.match(/\d+/g);
+  if (!match || match.length < 3) {
+    return { r: 15, g: 118, b: 110 };
+  }
+  return {
+    r: Number(match[0]),
+    g: Number(match[1]),
+    b: Number(match[2]),
+  };
+}
+
+function buildHeatmap(target, hourlyStats) {
+  target.innerHTML = "";
+  const order = [1, 2, 3, 4, 5, 6, 0];
+  const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const buckets = Array.from({ length: 7 }, () => new Array(24).fill(0));
+
+  Object.entries(hourlyStats).forEach(([date, hours]) => {
+    const [year, month, day] = date.split("-").map(Number);
+    if (!year || !month || !day) return;
+    const weekday = new Date(year, month - 1, day).getDay();
+    Object.entries(hours || {}).forEach(([hour, time]) => {
+      const hourIndex = Number(hour);
+      if (Number.isNaN(hourIndex)) return;
+      buckets[weekday][hourIndex] += time || 0;
+    });
+  });
+
+  const max = Math.max(1, ...buckets.flat());
+  const accent = getComputedStyle(document.documentElement)
+    .getPropertyValue("--accent")
+    .trim();
+  const { r, g, b } = parseColorToRgb(accent);
+
+  target.appendChild(document.createElement("div"));
+  for (let hour = 0; hour < 24; hour += 1) {
+    const label = document.createElement("div");
+    label.className = "heatmap-hour";
+    label.textContent = hour % 3 === 0 ? String(hour).padStart(2, "0") : "";
+    target.appendChild(label);
+  }
+
+  order.forEach((weekdayIndex, rowIndex) => {
+    const rowLabel = document.createElement("div");
+    rowLabel.className = "heatmap-label";
+    rowLabel.textContent = labels[rowIndex];
+    target.appendChild(rowLabel);
+
+    for (let hour = 0; hour < 24; hour += 1) {
+      const value = buckets[weekdayIndex][hour];
+      const cell = document.createElement("div");
+      cell.className = "heatmap-cell";
+      if (value > 0) {
+        const intensity = Math.min(1, value / max);
+        const alpha = 0.2 + intensity * 0.7;
+        cell.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      }
+      const hourLabel = `${String(hour).padStart(2, "0")}:00`;
+      cell.dataset.tooltip = `${labels[rowIndex]} ${hourLabel}: ${formatTime(
+        value
+      )}`;
+      target.appendChild(cell);
+    }
+  });
+}
+
 function setupTooltip() {
   const tooltip = document.createElement("div");
   tooltip.className = "tooltip";
@@ -381,6 +465,8 @@ async function render() {
 
   const days = getLastDays(dailyStats, 7);
   drawTrend(document.getElementById("trend-chart"), days);
+
+  buildHeatmap(document.getElementById("heatmap"), hourlyStats);
 
   const canvas = document.getElementById("trend-chart");
   canvas.dataset.days = JSON.stringify(days);

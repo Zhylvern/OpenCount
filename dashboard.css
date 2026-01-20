@@ -138,6 +138,39 @@ h1 {
   background: var(--card);
 }
 
+.heatmap-scroll {
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: 60px repeat(24, minmax(18px, 1fr));
+  gap: 6px;
+  align-items: center;
+}
+
+.heatmap-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.heatmap-hour {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.heatmap-cell {
+  width: 100%;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+
 .export-menu {
   position: relative;
 }
