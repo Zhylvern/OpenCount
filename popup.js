@@ -103,3 +103,19 @@ function stopAutoRefresh() {
 startAutoRefresh();
 
 window.addEventListener("unload", stopAutoRefresh);
+
+const showOverlayButton = document.getElementById("show-overlay");
+if (showOverlayButton) {
+  showOverlayButton.addEventListener("click", async () => {
+    const [tab] = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (!tab || !tab.id) return;
+    try {
+      await browser.tabs.sendMessage(tab.id, { type: "showOverlay" });
+    } catch {
+      // Ignore if the tab cannot receive messages (e.g. extension pages).
+    }
+  });
+}

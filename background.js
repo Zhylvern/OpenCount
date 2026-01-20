@@ -157,13 +157,16 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 browser.windows.onFocusChanged.addListener(async (windowId) => {
-  windowFocused = windowId !== browser.windows.WINDOW_ID_NONE;
-  if (windowFocused) {
-    lastActiveTimestamp = activeDomain ? Date.now() : null;
-  } else {
+  if (windowId === browser.windows.WINDOW_ID_NONE) {
     await recordActiveTime();
+    windowFocused = false;
     lastActiveTimestamp = null;
+    await saveState();
+    return;
   }
+
+  windowFocused = true;
+  lastActiveTimestamp = activeDomain ? Date.now() : null;
   await saveState();
 });
 

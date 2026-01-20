@@ -105,6 +105,22 @@
         color: var(--muted);
         padding: 6px 2px;
       }
+      .footer {
+        margin-top: auto;
+      }
+      .button {
+        width: 100%;
+        border: 1px solid var(--border);
+        background: #f8fafc;
+        color: var(--ink);
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .button:hover {
+        background: #eef2f7;
+      }
     </style>
   </head>
   <body>
@@ -118,6 +134,11 @@
       </div>
       <div id="list">
         <div class="note">Loading stats...</div>
+      </div>
+      <div class="footer">
+        <button id="show-overlay" class="button" type="button">
+          Show timer on this page
+        </button>
       </div>
     </div>
     <script src="popup.js"></script>
