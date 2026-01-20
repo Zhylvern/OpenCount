@@ -107,12 +107,76 @@ h1 {
   gap: 14px;
 }
 
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .theme-toggle {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   font-size: 12px;
   color: var(--muted);
+}
+
+.action-button {
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.action-button:hover {
+  background: var(--card);
+}
+
+.export-menu {
+  position: relative;
+}
+
+.export-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 140px;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  display: none;
+  z-index: 2;
+}
+
+.export-panel.is-open {
+  display: grid;
+  gap: 6px;
+}
+
+.menu-button {
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-button:hover {
+  background: var(--bg-soft);
+  border-color: var(--line);
 }
 
 .theme-toggle button {
@@ -379,6 +443,10 @@ tbody tr:first-child td {
 
   .hero-actions {
     align-items: flex-start;
+  }
+
+  .action-row {
+    justify-content: flex-start;
   }
 
   .bar-row {

@@ -21,11 +21,42 @@
           </p>
         </div>
         <div class="hero-actions">
-          <div class="theme-toggle">
-            <span>Dark mode</span>
-            <button id="theme-toggle" type="button" aria-pressed="false">
-              <span class="toggle-knob"></span>
-            </button>
+          <div class="action-row">
+            <div class="theme-toggle">
+              <span>Dark mode</span>
+              <button id="theme-toggle" type="button" aria-pressed="false">
+                <span class="toggle-knob"></span>
+              </button>
+            </div>
+            <div class="export-menu">
+              <button
+                id="export-toggle"
+                class="action-button"
+                type="button"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                Export data
+              </button>
+              <div class="export-panel" role="menu" aria-label="Export options">
+                <button
+                  id="export-json"
+                  class="menu-button"
+                  type="button"
+                  role="menuitem"
+                >
+                  JSON
+                </button>
+                <button
+                  id="export-csv"
+                  class="menu-button"
+                  type="button"
+                  role="menuitem"
+                >
+                  CSV
+                </button>
+              </div>
+            </div>
           </div>
           <div class="hero-card">
             <div class="hero-label">All-time activity</div>

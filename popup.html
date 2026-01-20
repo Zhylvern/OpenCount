@@ -146,6 +146,14 @@
       .button:hover {
         background: #eef2f7;
       }
+      .button-danger {
+        border-color: #f1c0c0;
+        background: #fff5f5;
+        color: #b91c1c;
+      }
+      .button-danger:hover {
+        background: #ffe5e5;
+      }
       .settings {
         border-top: 1px solid var(--border);
         padding-top: 8px;
@@ -198,6 +206,9 @@
           <div class="settings-body">
             <button id="show-overlay" class="button" type="button">
               Show timer on this page
+            </button>
+            <button id="reset-data" class="button button-danger" type="button">
+              Reset all data
             </button>
           </div>
         </details>

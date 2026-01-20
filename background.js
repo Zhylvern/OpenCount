@@ -233,19 +233,31 @@ browser.runtime.onInstalled.addListener(async () => {
 });
 
 browser.runtime.onMessage.addListener((message) => {
-  if (!message || message.type !== "getLiveStats") return;
-  return (async () => {
-    const stats = await getStats();
-    const liveStats = { ...stats };
-    if (windowFocused && activeDomain && lastActiveTimestamp) {
-      const elapsed = Date.now() - lastActiveTimestamp;
-      if (elapsed > 0) {
-        if (!liveStats[activeDomain]) {
-          liveStats[activeDomain] = { visits: 0, activeTimeMs: 0 };
+  if (!message || !message.type) return;
+  if (message.type === "getLiveStats") {
+    return (async () => {
+      const stats = await getStats();
+      const liveStats = { ...stats };
+      if (windowFocused && activeDomain && lastActiveTimestamp) {
+        const elapsed = Date.now() - lastActiveTimestamp;
+        if (elapsed > 0) {
+          if (!liveStats[activeDomain]) {
+            liveStats[activeDomain] = { visits: 0, activeTimeMs: 0 };
+          }
+          liveStats[activeDomain].activeTimeMs += elapsed;
         }
-        liveStats[activeDomain].activeTimeMs += elapsed;
       }
-    }
-    return { stats: liveStats };
-  })();
+      return { stats: liveStats };
+    })();
+  }
+  if (message.type === "resetData") {
+    return (async () => {
+      await saveStats({});
+      await saveDailyStats({});
+      await saveHourlyStats({});
+      lastActiveTimestamp = windowFocused && activeDomain ? Date.now() : null;
+      await saveState();
+      return { ok: true };
+    })();
+  }
 });

@@ -249,6 +249,75 @@ function setupTooltip() {
   };
 }
 
+function downloadJson(data) {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const date = getDateKey();
+  link.href = url;
+  link.download = `opencount-export-${date}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function escapeCsv(value) {
+  const text = String(value ?? "");
+  if (/[",\n]/.test(text)) {
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+  return text;
+}
+
+function downloadCsv({ stats, dailyStats, hourlyStats }) {
+  const rows = [];
+  rows.push(["scope", "date", "hour", "domain", "visits", "activeTimeMs"]);
+
+  Object.entries(stats).forEach(([domain, data]) => {
+    rows.push([
+      "all-time",
+      "",
+      "",
+      domain,
+      data.visits || 0,
+      data.activeTimeMs || 0,
+    ]);
+  });
+
+  Object.entries(dailyStats).forEach(([date, domains]) => {
+    Object.entries(domains || {}).forEach(([domain, data]) => {
+      rows.push([
+        "daily",
+        date,
+        "",
+        domain,
+        data.visits || 0,
+        data.activeTimeMs || 0,
+      ]);
+    });
+  });
+
+  Object.entries(hourlyStats).forEach(([date, hours]) => {
+    Object.entries(hours || {}).forEach(([hour, time]) => {
+      rows.push(["hourly", date, hour, "", "", time || 0]);
+    });
+  });
+
+  const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const date = getDateKey();
+  link.href = url;
+  link.download = `opencount-export-${date}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 async function render() {
   const { stats, dailyStats, hourlyStats } = await loadData();
 
@@ -350,6 +419,69 @@ if (themeButton) {
     const nextTheme = isDark ? "light" : "dark";
     setTheme(nextTheme);
     await browser.storage.local.set({ [THEME_KEY]: nextTheme });
+  });
+}
+
+const exportJsonButton = document.getElementById("export-json");
+if (exportJsonButton) {
+  exportJsonButton.addEventListener("click", async () => {
+    const { stats, dailyStats, hourlyStats } = await loadData();
+    downloadJson({
+      exportedAt: new Date().toISOString(),
+      stats,
+      dailyStats,
+      hourlyStats,
+    });
+  });
+}
+
+const exportCsvButton = document.getElementById("export-csv");
+if (exportCsvButton) {
+  exportCsvButton.addEventListener("click", async () => {
+    const { stats, dailyStats, hourlyStats } = await loadData();
+    downloadCsv({ stats, dailyStats, hourlyStats });
+  });
+}
+
+const exportToggle = document.getElementById("export-toggle");
+const exportPanel = document.querySelector(".export-panel");
+if (exportToggle && exportPanel) {
+  const closeMenu = () => {
+    exportPanel.classList.remove("is-open");
+    exportToggle.setAttribute("aria-expanded", "false");
+  };
+
+  const openMenu = () => {
+    exportPanel.classList.add("is-open");
+    exportToggle.setAttribute("aria-expanded", "true");
+  };
+
+  exportToggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (exportPanel.classList.contains("is-open")) {
+      closeMenu();
+      return;
+    }
+    openMenu();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!exportPanel.classList.contains("is-open")) return;
+    if (exportPanel.contains(event.target) || exportToggle.contains(event.target)) {
+      return;
+    }
+    closeMenu();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeMenu();
+    }
+  });
+
+  [exportJsonButton, exportCsvButton].forEach((button) => {
+    if (!button) return;
+    button.addEventListener("click", closeMenu);
   });
 }
 
