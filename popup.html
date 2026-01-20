@@ -16,10 +16,10 @@
       html,
       body {
         margin: 0;
-        width: 320px;
-        height: 240px;
-        min-width: 300px;
-        min-height: 220px;
+        width: 400px;
+        height: 320px;
+        min-width: 380px;
+        min-height: 300px;
         font-family: "Avenir Next", "Futura", "Gill Sans", sans-serif;
         background: linear-gradient(160deg, var(--bg-2), var(--bg-1));
         color: var(--ink);
@@ -121,6 +121,21 @@
       .button:hover {
         background: #eef2f7;
       }
+      .settings {
+        border-top: 1px solid var(--border);
+        padding-top: 8px;
+        font-size: 12px;
+      }
+      .settings summary {
+        cursor: pointer;
+        color: var(--muted);
+      }
+      .settings summary:hover {
+        color: var(--ink);
+      }
+      .settings-body {
+        margin-top: 8px;
+      }
     </style>
   </head>
   <body>
@@ -136,9 +151,14 @@
         <div class="note">Loading stats...</div>
       </div>
       <div class="footer">
-        <button id="show-overlay" class="button" type="button">
-          Show timer on this page
-        </button>
+        <details class="settings">
+          <summary>Settings</summary>
+          <div class="settings-body">
+            <button id="show-overlay" class="button" type="button">
+              Show timer on this page
+            </button>
+          </div>
+        </details>
       </div>
     </div>
     <script src="popup.js"></script>
