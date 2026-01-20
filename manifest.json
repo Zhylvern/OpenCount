@@ -18,5 +18,17 @@
   "browser_action": {
     "default_title": "OpenCount",
     "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "opencount@nonary.software",
+      "data_collection_permissions": {
+        "collects_personal_data": false,
+        "collects_browsing_activity": false,
+        "collects_website_content": false,
+        "collects_technical_and_interaction_data": false,
+        "collects_location": false
+      }
+    }
   }
 }
