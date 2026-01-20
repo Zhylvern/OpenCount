@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -41,23 +41,29 @@
         gap: 10px;
         box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
       }
-      .header {
+      .hero {
         display: flex;
-        align-items: baseline;
-        justify-content: space-between;
+        align-items: center;
         gap: 8px;
+      }
+      .hero img {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        background: transparent;
+      }
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .subtitle {
+        line-height: 1.2;
       }
       h1 {
         font-size: 18px;
         margin: 0;
-      }
-      .badge {
-        font-size: 10px;
-        font-weight: 600;
-        color: #fff;
-        background: var(--accent);
-        padding: 4px 8px;
-        border-radius: 999px;
       }
       .subtitle {
         font-size: 12px;
@@ -103,12 +109,12 @@
   </head>
   <body>
     <div class="card">
-      <div class="header">
-        <div>
+      <div class="hero">
+        <img src="popup-assets/hero-40.png" alt="OpenCount icon" />
+        <div class="hero-text">
           <h1>OpenCount</h1>
           <div class="subtitle">Active time by domain</div>
         </div>
-        <div class="badge">Live</div>
       </div>
       <div id="list">
         <div class="note">Loading stats...</div>
