@@ -11,6 +11,19 @@
   --shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
 }
 
+[data-theme="dark"] {
+  --ink: #e2e8f0;
+  --muted: #94a3b8;
+  --bg: #0b1220;
+  --bg-soft: #141b2d;
+  --card: #111827;
+  --line: #1f2937;
+  --accent: #2dd4bf;
+  --accent-2: #fb923c;
+  --accent-3: #38bdf8;
+  --shadow: 0 16px 40px rgba(3, 7, 18, 0.4);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -21,6 +34,10 @@ body {
   font-family: "Space Grotesk", "Manrope", "Avenir Next", sans-serif;
   color: var(--ink);
   background: radial-gradient(circle at top, #faf7f2, var(--bg));
+}
+
+[data-theme="dark"] body {
+  background: radial-gradient(circle at top, #121a2c, var(--bg));
 }
 
 .page {
@@ -77,6 +94,55 @@ h1 {
   background: linear-gradient(135deg, #ffffff, #f9f7f3);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
+}
+
+[data-theme="dark"] .hero-card {
+  background: linear-gradient(135deg, #111827, #0f172a);
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.theme-toggle button {
+  position: relative;
+  width: 42px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: transform 0.2s ease;
+}
+
+[data-theme="dark"] .toggle-knob {
+  transform: translateX(20px);
+}
+
+.theme-toggle button[aria-pressed="true"] .toggle-knob {
+  transform: translateX(20px);
 }
 
 .hero-label {
@@ -255,6 +321,11 @@ tbody tr:first-child td {
   transform: translateY(0);
 }
 
+[data-theme="dark"] .tooltip {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;
@@ -266,6 +337,10 @@ tbody tr:first-child td {
 
   .metrics {
     grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    align-items: flex-start;
   }
 
   .bar-row {

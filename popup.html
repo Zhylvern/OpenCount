@@ -46,6 +46,31 @@
         align-items: center;
         gap: 8px;
       }
+      .hero-actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+      }
+      .icon-button {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #f8fafc;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+      }
+      .icon-button:hover {
+        background: #eef2f7;
+      }
+      .icon-button svg {
+        width: 14px;
+        height: 14px;
+        stroke: #0f172a;
+      }
       .hero img {
         width: 32px;
         height: 32px;
@@ -148,6 +173,21 @@
           <h1>OpenCount</h1>
           <div class="subtitle">Active time by domain</div>
         </div>
+        <div class="hero-actions">
+          <button
+            id="open-dashboard"
+            class="icon-button"
+            type="button"
+            title="Open dashboard"
+            aria-label="Open dashboard"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+              <path
+                d="M14 5h5v5M10 14l9-9M5 19h14a2 2 0 0 0 2-2V9"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
       <div id="list">
         <div class="note">Loading stats...</div>
@@ -156,9 +196,6 @@
         <details class="settings">
           <summary>Settings</summary>
           <div class="settings-body">
-            <button id="open-dashboard" class="button" type="button">
-              Open dashboard
-            </button>
             <button id="show-overlay" class="button" type="button">
               Show timer on this page
             </button>

@@ -1,6 +1,7 @@
 const STORAGE_KEY = "stats";
 const DAILY_KEY = "dailyStats";
 const HOURLY_KEY = "hourlyStats";
+const THEME_KEY = "dashboardTheme";
 
 const COLORS = ["#0f766e", "#f97316", "#0ea5e9", "#16a34a", "#f43f5e"];
 
@@ -12,6 +13,20 @@ function formatTime(ms) {
     return `${hours}h ${minutes}m`;
   }
   return `${minutes}m ${totalSeconds % 60}s`;
+}
+
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const button = document.getElementById("theme-toggle");
+  if (button) {
+    button.setAttribute("aria-pressed", theme === "dark");
+  }
+}
+
+async function loadTheme() {
+  const result = await browser.storage.local.get(THEME_KEY);
+  const theme = result[THEME_KEY] || "light";
+  setTheme(theme);
 }
 
 function getDateKey(date = new Date()) {
@@ -173,6 +188,10 @@ function drawTrend(canvas, days) {
   const height = canvas.height;
   ctx.clearRect(0, 0, width, height);
 
+  const accent =
+    getComputedStyle(document.documentElement)
+      .getPropertyValue("--accent")
+      .trim() || "#0f766e";
   const max = Math.max(...days.map((day) => day.totalTime), 1);
   const barWidth = Math.floor(width / days.length) - 8;
 
@@ -181,7 +200,7 @@ function drawTrend(canvas, days) {
     const x = index * (barWidth + 8) + 4;
     const y = height - barHeight - 16;
 
-    ctx.fillStyle = "#0f766e";
+    ctx.fillStyle = accent;
     ctx.fillRect(x, y, barWidth, barHeight);
 
     ctx.fillStyle = "#6b7280";
@@ -324,4 +343,17 @@ document.getElementById("trend-chart").addEventListener("mouseleave", () => {
   tooltip.setCanvasActive(false);
 });
 
-render();
+const themeButton = document.getElementById("theme-toggle");
+if (themeButton) {
+  themeButton.addEventListener("click", async () => {
+    const isDark = document.documentElement.dataset.theme === "dark";
+    const nextTheme = isDark ? "light" : "dark";
+    setTheme(nextTheme);
+    await browser.storage.local.set({ [THEME_KEY]: nextTheme });
+  });
+}
+
+(async () => {
+  await loadTheme();
+  await render();
+})();
