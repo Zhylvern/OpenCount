@@ -2,11 +2,14 @@ const STORAGE_KEY = "stats";
 const DAILY_KEY = "dailyStats";
 const STATE_KEY = "state";
 const HOURLY_KEY = "hourlyStats";
+const SESSION_KEY = "sessionStats";
+const BOUNCE_THRESHOLD_MS = 30000;
 
 let activeTabId = null;
 let activeDomain = null;
 let lastActiveTimestamp = null;
 let windowFocused = true;
+let sessionStartTimestamp = null;
 
 function isTrackableUrl(url) {
   if (!url) return false;
@@ -36,6 +39,11 @@ async function getHourlyStats() {
   return result[HOURLY_KEY] || {};
 }
 
+async function getSessionStats() {
+  const result = await browser.storage.local.get(SESSION_KEY);
+  return result[SESSION_KEY] || {};
+}
+
 async function saveStats(stats) {
   await browser.storage.local.set({ [STORAGE_KEY]: stats });
 }
@@ -48,9 +56,19 @@ async function saveHourlyStats(hourly) {
   await browser.storage.local.set({ [HOURLY_KEY]: hourly });
 }
 
+async function saveSessionStats(sessionStats) {
+  await browser.storage.local.set({ [SESSION_KEY]: sessionStats });
+}
+
 async function ensureDomain(stats, domain) {
   if (!stats[domain]) {
     stats[domain] = { visits: 0, activeTimeMs: 0 };
+  }
+}
+
+async function ensureSessionDomain(sessionStats, domain) {
+  if (!sessionStats[domain]) {
+    sessionStats[domain] = { sessions: 0, bounces: 0, totalSessionMs: 0 };
   }
 }
 
@@ -105,6 +123,7 @@ async function saveState() {
       activeDomain,
       lastActiveTimestamp,
       windowFocused,
+      sessionStartTimestamp,
     },
   });
 }
@@ -117,6 +136,7 @@ async function loadState() {
   activeDomain = state.activeDomain;
   lastActiveTimestamp = state.lastActiveTimestamp;
   windowFocused = state.windowFocused;
+  sessionStartTimestamp = state.sessionStartTimestamp || null;
 }
 
 async function recordActiveTime() {
@@ -142,10 +162,28 @@ async function recordActiveTime() {
   await saveState();
 }
 
+async function recordSession(endTimestamp = Date.now()) {
+  if (!activeDomain || !sessionStartTimestamp) return;
+  const duration = endTimestamp - sessionStartTimestamp;
+  sessionStartTimestamp = null;
+  if (duration <= 0) return;
+
+  const sessionStats = await getSessionStats();
+  await ensureSessionDomain(sessionStats, activeDomain);
+  sessionStats[activeDomain].sessions += 1;
+  sessionStats[activeDomain].totalSessionMs += duration;
+  if (duration < BOUNCE_THRESHOLD_MS) {
+    sessionStats[activeDomain].bounces += 1;
+  }
+  await saveSessionStats(sessionStats);
+}
+
 async function switchActiveDomain(newDomain) {
   await recordActiveTime();
+  await recordSession();
   activeDomain = newDomain;
   lastActiveTimestamp = windowFocused && activeDomain ? Date.now() : null;
+  sessionStartTimestamp = windowFocused && activeDomain ? Date.now() : null;
   await saveState();
 }
 
@@ -200,14 +238,17 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 browser.windows.onFocusChanged.addListener(async (windowId) => {
   if (windowId === browser.windows.WINDOW_ID_NONE) {
     await recordActiveTime();
+    await recordSession();
     windowFocused = false;
     lastActiveTimestamp = null;
+    sessionStartTimestamp = null;
     await saveState();
     return;
   }
 
   windowFocused = true;
   lastActiveTimestamp = activeDomain ? Date.now() : null;
+  sessionStartTimestamp = activeDomain ? Date.now() : null;
   await saveState();
 });
 
@@ -218,6 +259,7 @@ browser.runtime.onStartup.addListener(async () => {
     activeTabId = tab.id;
     activeDomain = getDomainFromUrl(tab.url);
     lastActiveTimestamp = windowFocused ? Date.now() : null;
+    sessionStartTimestamp = windowFocused ? Date.now() : null;
     await saveState();
   }
 });
@@ -228,6 +270,7 @@ browser.runtime.onInstalled.addListener(async () => {
     activeTabId = tab.id;
     activeDomain = getDomainFromUrl(tab.url);
     lastActiveTimestamp = windowFocused ? Date.now() : null;
+    sessionStartTimestamp = windowFocused ? Date.now() : null;
     await saveState();
   }
 });
@@ -255,7 +298,9 @@ browser.runtime.onMessage.addListener((message) => {
       await saveStats({});
       await saveDailyStats({});
       await saveHourlyStats({});
+      await saveSessionStats({});
       lastActiveTimestamp = windowFocused && activeDomain ? Date.now() : null;
+      sessionStartTimestamp = windowFocused && activeDomain ? Date.now() : null;
       await saveState();
       return { ok: true };
     })();

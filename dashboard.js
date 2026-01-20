@@ -1,6 +1,7 @@
 const STORAGE_KEY = "stats";
 const DAILY_KEY = "dailyStats";
 const HOURLY_KEY = "hourlyStats";
+const SESSION_KEY = "sessionStats";
 const THEME_KEY = "dashboardTheme";
 
 const COLORS = ["#0f766e", "#f97316", "#0ea5e9", "#16a34a", "#f43f5e"];
@@ -41,11 +42,13 @@ async function loadData() {
     STORAGE_KEY,
     DAILY_KEY,
     HOURLY_KEY,
+    SESSION_KEY,
   ]);
   return {
     stats: storage[STORAGE_KEY] || {},
     dailyStats: storage[DAILY_KEY] || {},
     hourlyStats: storage[HOURLY_KEY] || {},
+    sessionStats: storage[SESSION_KEY] || {},
   };
 }
 
@@ -57,6 +60,18 @@ function sumTotals(stats) {
       return acc;
     },
     { visits: 0, time: 0 }
+  );
+}
+
+function sumSessionTotals(sessionStats) {
+  return Object.values(sessionStats).reduce(
+    (acc, item) => {
+      acc.sessions += item.sessions || 0;
+      acc.bounces += item.bounces || 0;
+      acc.time += item.totalSessionMs || 0;
+      return acc;
+    },
+    { sessions: 0, bounces: 0, time: 0 }
   );
 }
 
@@ -355,9 +370,19 @@ function escapeCsv(value) {
   return text;
 }
 
-function downloadCsv({ stats, dailyStats, hourlyStats }) {
+function downloadCsv({ stats, dailyStats, hourlyStats, sessionStats }) {
   const rows = [];
-  rows.push(["scope", "date", "hour", "domain", "visits", "activeTimeMs"]);
+  rows.push([
+    "scope",
+    "date",
+    "hour",
+    "domain",
+    "visits",
+    "activeTimeMs",
+    "sessions",
+    "bounces",
+    "sessionTimeMs",
+  ]);
 
   Object.entries(stats).forEach(([domain, data]) => {
     rows.push([
@@ -367,6 +392,9 @@ function downloadCsv({ stats, dailyStats, hourlyStats }) {
       domain,
       data.visits || 0,
       data.activeTimeMs || 0,
+      "",
+      "",
+      "",
     ]);
   });
 
@@ -379,14 +407,31 @@ function downloadCsv({ stats, dailyStats, hourlyStats }) {
         domain,
         data.visits || 0,
         data.activeTimeMs || 0,
+        "",
+        "",
+        "",
       ]);
     });
   });
 
   Object.entries(hourlyStats).forEach(([date, hours]) => {
     Object.entries(hours || {}).forEach(([hour, time]) => {
-      rows.push(["hourly", date, hour, "", "", time || 0]);
+      rows.push(["hourly", date, hour, "", "", time || 0, "", "", ""]);
     });
+  });
+
+  Object.entries(sessionStats || {}).forEach(([domain, data]) => {
+    rows.push([
+      "sessions",
+      "",
+      "",
+      domain,
+      "",
+      "",
+      data.sessions || 0,
+      data.bounces || 0,
+      data.totalSessionMs || 0,
+    ]);
   });
 
   const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\n");
@@ -403,7 +448,7 @@ function downloadCsv({ stats, dailyStats, hourlyStats }) {
 }
 
 async function render() {
-  const { stats, dailyStats, hourlyStats } = await loadData();
+  const { stats, dailyStats, hourlyStats, sessionStats } = await loadData();
 
   const entries = Object.entries(stats).sort(
     (a, b) => (b[1].activeTimeMs || 0) - (a[1].activeTimeMs || 0)
@@ -432,6 +477,18 @@ async function render() {
     totals.visits > 0 ? Math.round(totals.time / totals.visits) : 0;
   document.getElementById("avg-session").textContent =
     totals.visits > 0 ? formatTime(avgSession) : "--";
+
+  const sessionTotals = sumSessionTotals(sessionStats);
+  const bounceRate =
+    sessionTotals.sessions > 0
+      ? (sessionTotals.bounces / sessionTotals.sessions) * 100
+      : null;
+  document.getElementById("bounce-rate").textContent =
+    bounceRate === null ? "--" : `${bounceRate.toFixed(1)}%`;
+  document.getElementById("bounce-rate-sub").textContent =
+    sessionTotals.sessions > 0
+      ? `${sessionTotals.bounces} of ${sessionTotals.sessions} sessions`
+      : "Sessions under 30s";
 
   const activeHour = getMostActiveHour(hourlyStats);
   document.getElementById("active-hour").textContent = formatHour(
@@ -511,12 +568,13 @@ if (themeButton) {
 const exportJsonButton = document.getElementById("export-json");
 if (exportJsonButton) {
   exportJsonButton.addEventListener("click", async () => {
-    const { stats, dailyStats, hourlyStats } = await loadData();
+    const { stats, dailyStats, hourlyStats, sessionStats } = await loadData();
     downloadJson({
       exportedAt: new Date().toISOString(),
       stats,
       dailyStats,
       hourlyStats,
+      sessionStats,
     });
   });
 }
@@ -524,8 +582,8 @@ if (exportJsonButton) {
 const exportCsvButton = document.getElementById("export-csv");
 if (exportCsvButton) {
   exportCsvButton.addEventListener("click", async () => {
-    const { stats, dailyStats, hourlyStats } = await loadData();
-    downloadCsv({ stats, dailyStats, hourlyStats });
+    const { stats, dailyStats, hourlyStats, sessionStats } = await loadData();
+    downloadCsv({ stats, dailyStats, hourlyStats, sessionStats });
   });
 }
 
