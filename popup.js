@@ -119,3 +119,11 @@ if (showOverlayButton) {
     }
   });
 }
+
+const openDashboardButton = document.getElementById("open-dashboard");
+if (openDashboardButton) {
+  openDashboardButton.addEventListener("click", async () => {
+    const url = browser.runtime.getURL("dashboard.html");
+    await browser.tabs.create({ url });
+  });
+}

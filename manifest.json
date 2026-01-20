@@ -19,6 +19,10 @@
     "default_title": "OpenCount",
     "default_popup": "popup.html"
   },
+  "options_ui": {
+    "page": "dashboard.html",
+    "open_in_tab": true
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

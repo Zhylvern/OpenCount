@@ -1,6 +1,7 @@
 const STORAGE_KEY = "stats";
 const DAILY_KEY = "dailyStats";
 const STATE_KEY = "state";
+const HOURLY_KEY = "hourlyStats";
 
 let activeTabId = null;
 let activeDomain = null;
@@ -30,12 +31,21 @@ async function getDailyStats() {
   return result[DAILY_KEY] || {};
 }
 
+async function getHourlyStats() {
+  const result = await browser.storage.local.get(HOURLY_KEY);
+  return result[HOURLY_KEY] || {};
+}
+
 async function saveStats(stats) {
   await browser.storage.local.set({ [STORAGE_KEY]: stats });
 }
 
 async function saveDailyStats(daily) {
   await browser.storage.local.set({ [DAILY_KEY]: daily });
+}
+
+async function saveHourlyStats(hourly) {
+  await browser.storage.local.set({ [HOURLY_KEY]: hourly });
 }
 
 async function ensureDomain(stats, domain) {
@@ -57,6 +67,34 @@ async function ensureDailyDomain(dailyStats, dateKey, domain) {
   }
   if (!dailyStats[dateKey][domain]) {
     dailyStats[dateKey][domain] = { visits: 0, activeTimeMs: 0 };
+  }
+}
+
+async function ensureHourlyBucket(hourlyStats, dateKey, hour) {
+  if (!hourlyStats[dateKey]) {
+    hourlyStats[dateKey] = {};
+  }
+  if (!hourlyStats[dateKey][hour]) {
+    hourlyStats[dateKey][hour] = 0;
+  }
+}
+
+async function recordHourlyTime(hourlyStats, startTs, endTs) {
+  let current = startTs;
+  while (current < endTs) {
+    const currentDate = new Date(current);
+    const dateKey = getDateKey(currentDate);
+    const hour = currentDate.getHours();
+
+    const nextHour = new Date(current);
+    nextHour.setMinutes(60, 0, 0);
+    const segmentEnd = Math.min(endTs, nextHour.getTime());
+    const segment = segmentEnd - current;
+    if (segment > 0) {
+      await ensureHourlyBucket(hourlyStats, dateKey, hour);
+      hourlyStats[dateKey][hour] += segment;
+    }
+    current = segmentEnd;
   }
 }
 
@@ -89,13 +127,16 @@ async function recordActiveTime() {
 
   const stats = await getStats();
   const dailyStats = await getDailyStats();
+  const hourlyStats = await getHourlyStats();
   await ensureDomain(stats, activeDomain);
   stats[activeDomain].activeTimeMs += elapsed;
   const dateKey = getDateKey();
   await ensureDailyDomain(dailyStats, dateKey, activeDomain);
   dailyStats[dateKey][activeDomain].activeTimeMs += elapsed;
+  await recordHourlyTime(hourlyStats, lastActiveTimestamp, now);
   await saveStats(stats);
   await saveDailyStats(dailyStats);
+  await saveHourlyStats(hourlyStats);
 
   lastActiveTimestamp = now;
   await saveState();

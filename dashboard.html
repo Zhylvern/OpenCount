@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenCount Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div>
+          <div class="eyebrow">
+            <img class="logo" src="icons/icon-96.png" alt="OpenCount logo" />
+            <span>OpenCount</span>
+          </div>
+          <h1>Usage Dashboard</h1>
+          <p class="lead">
+            Clean breakdowns of visit counts and time spent, updated from your
+            local data.
+          </p>
+        </div>
+        <div class="hero-card">
+          <div class="hero-label">All-time activity</div>
+          <div class="hero-metric" id="total-time">--</div>
+          <div class="hero-sub" id="total-visits">-- visits</div>
+        </div>
+      </header>
+
+      <section class="metrics">
+        <div class="metric-card">
+          <div class="metric-label">Today vs yesterday</div>
+          <div class="metric-value" id="today-yesterday">--</div>
+          <div class="metric-sub" id="today-yesterday-sub">--</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Average session</div>
+          <div class="metric-value" id="avg-session">--</div>
+          <div class="metric-sub">Based on total time / visits</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Most active hour</div>
+          <div class="metric-value" id="active-hour">--</div>
+          <div class="metric-sub" id="active-hour-sub">Across all days</div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="card-head">
+            <h2>Top domains by time</h2>
+            <span class="chip">All time</span>
+          </div>
+          <div class="chart" id="time-bars"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Top domains by visits</h2>
+            <span class="chip">All time</span>
+          </div>
+          <div class="chart" id="visit-bars"></div>
+        </div>
+
+        <div class="card wide">
+          <div class="card-head">
+            <h2>Daily activity trend</h2>
+            <span class="chip">Last 7 days</span>
+          </div>
+          <canvas id="trend-chart" height="140"></canvas>
+        </div>
+
+        <div class="card wide">
+          <div class="card-head">
+            <h2>Domain details</h2>
+            <span class="chip">All time</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Domain</th>
+                  <th>Visits</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="domain-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="dashboard.js"></script>
+  </body>
+</html>
