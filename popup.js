@@ -127,22 +127,3 @@ if (openDashboardButton) {
     await browser.tabs.create({ url });
   });
 }
-
-const resetDataButton = document.getElementById("reset-data");
-if (resetDataButton) {
-  resetDataButton.addEventListener("click", async () => {
-    const confirmed = window.confirm(
-      "Reset all OpenCount data? This cannot be undone."
-    );
-    if (!confirmed) return;
-    try {
-      await browser.runtime.sendMessage({ type: "resetData" });
-      await render();
-    } catch {
-      const list = document.getElementById("list");
-      if (list) {
-        setNote(list, "Reset failed. Try again.");
-      }
-    }
-  });
-}

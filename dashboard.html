@@ -21,43 +21,27 @@
           </p>
         </div>
         <div class="hero-actions">
-          <div class="action-row">
-            <div class="theme-toggle">
-              <span>Dark mode</span>
-              <button id="theme-toggle" type="button" aria-pressed="false">
-                <span class="toggle-knob"></span>
-              </button>
-            </div>
-            <div class="export-menu">
-              <button
-                id="export-toggle"
-                class="action-button"
-                type="button"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                Export data
-              </button>
-              <div class="export-panel" role="menu" aria-label="Export options">
-                <button
-                  id="export-json"
-                  class="menu-button"
-                  type="button"
-                  role="menuitem"
-                >
-                  JSON
-                </button>
-                <button
-                  id="export-csv"
-                  class="menu-button"
-                  type="button"
-                  role="menuitem"
-                >
-                  CSV
-                </button>
-              </div>
-            </div>
-          </div>
+          <button
+            id="settings-toggle"
+            class="icon-button"
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-label="Open settings"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M12 2a2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33a1.65 1.65 0 0 0-1 1.51V20a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33a1.65 1.65 0 0 0 1-1.51V4a2 2 0 0 1 2-2Z"
+              />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
           <div class="hero-card">
             <div class="hero-label">All-time activity</div>
             <div class="hero-metric" id="total-time">--</div>
@@ -157,6 +141,58 @@
           GitHub
         </a>
       </footer>
+    </div>
+
+    <div class="modal" id="settings-modal" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div>
+            <div class="modal-title">Settings</div>
+            <div class="modal-subtitle">Controls and export options</div>
+          </div>
+          <button class="icon-button" id="settings-close" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+              <path d="M6 6l12 12M18 6l-12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-section">
+          <div class="modal-label">Appearance</div>
+          <div class="theme-toggle">
+            <span>Dark mode</span>
+            <button id="theme-toggle" type="button" aria-pressed="false">
+              <span class="toggle-knob"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <div class="modal-label">Export data</div>
+          <div class="modal-actions">
+            <button id="export-json" class="action-button" type="button">
+              Export JSON
+            </button>
+            <button id="export-csv" class="action-button" type="button">
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-section danger-zone">
+          <div class="modal-label">Danger zone</div>
+          <p class="modal-note">
+            Reset removes all stored tracking data from this extension.
+          </p>
+          <button
+            id="reset-data"
+            class="action-button action-danger"
+            type="button"
+          >
+            Reset all data
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="dashboard.js"></script>

@@ -348,6 +348,17 @@ function setupTooltip() {
   };
 }
 
+function closeSettingsModal() {
+  const modal = document.getElementById("settings-modal");
+  const toggle = document.getElementById("settings-toggle");
+  if (modal) {
+    modal.classList.remove("is-open");
+  }
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", "false");
+  }
+}
+
 function downloadJson(data) {
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: "application/json" });
@@ -576,6 +587,7 @@ if (exportJsonButton) {
       hourlyStats,
       sessionStats,
     });
+    closeSettingsModal();
   });
 }
 
@@ -584,48 +596,61 @@ if (exportCsvButton) {
   exportCsvButton.addEventListener("click", async () => {
     const { stats, dailyStats, hourlyStats, sessionStats } = await loadData();
     downloadCsv({ stats, dailyStats, hourlyStats, sessionStats });
+    closeSettingsModal();
   });
 }
 
-const exportToggle = document.getElementById("export-toggle");
-const exportPanel = document.querySelector(".export-panel");
-if (exportToggle && exportPanel) {
-  const closeMenu = () => {
-    exportPanel.classList.remove("is-open");
-    exportToggle.setAttribute("aria-expanded", "false");
+const resetDataButton = document.getElementById("reset-data");
+if (resetDataButton) {
+  resetDataButton.addEventListener("click", async () => {
+    const confirmed = window.confirm(
+      "Reset all OpenCount data? This cannot be undone."
+    );
+    if (!confirmed) return;
+    try {
+      await browser.runtime.sendMessage({ type: "resetData" });
+      await render();
+      closeSettingsModal();
+    } catch {
+      window.alert("Reset failed. Try again.");
+    }
+  });
+}
+
+const settingsToggle = document.getElementById("settings-toggle");
+const settingsModal = document.getElementById("settings-modal");
+const settingsClose = document.getElementById("settings-close");
+if (settingsToggle && settingsModal && settingsClose) {
+  const closeModal = () => {
+    settingsModal.classList.remove("is-open");
+    settingsToggle.setAttribute("aria-expanded", "false");
   };
 
-  const openMenu = () => {
-    exportPanel.classList.add("is-open");
-    exportToggle.setAttribute("aria-expanded", "true");
+  const openModal = () => {
+    settingsModal.classList.add("is-open");
+    settingsToggle.setAttribute("aria-expanded", "true");
   };
 
-  exportToggle.addEventListener("click", (event) => {
-    event.stopPropagation();
-    if (exportPanel.classList.contains("is-open")) {
-      closeMenu();
+  settingsToggle.addEventListener("click", () => {
+    if (settingsModal.classList.contains("is-open")) {
+      closeModal();
       return;
     }
-    openMenu();
+    openModal();
   });
 
-  document.addEventListener("click", (event) => {
-    if (!exportPanel.classList.contains("is-open")) return;
-    if (exportPanel.contains(event.target) || exportToggle.contains(event.target)) {
-      return;
+  settingsClose.addEventListener("click", closeModal);
+
+  settingsModal.addEventListener("click", (event) => {
+    if (event.target === settingsModal) {
+      closeModal();
     }
-    closeMenu();
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      closeMenu();
+      closeModal();
     }
-  });
-
-  [exportJsonButton, exportCsvButton].forEach((button) => {
-    if (!button) return;
-    button.addEventListener("click", closeMenu);
   });
 }
 
