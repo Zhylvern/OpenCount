@@ -9,10 +9,17 @@ OpenCount is a lightweight Firefox extension that tracks visit counts and active
 - Stores data locally in `browser.storage.local` (no network calls)
 
 ## Install (Temporary)
+### Firefox
 1. Open Firefox and go to `about:debugging`.
 2. Click "This Firefox".
 3. Click "Load Temporary Add-on...".
 4. Select `manifest.json` from this folder.
+
+### Chromium-based (Chrome, Edge, Brave)
+1. Open `chrome://extensions` (or `edge://extensions`).
+2. Enable "Developer mode".
+3. Click "Load unpacked".
+4. Select this project folder.
 
 ## Development
 After editing files, reload the extension from `about:debugging`.
