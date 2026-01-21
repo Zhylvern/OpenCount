@@ -22,6 +22,12 @@ After editing files, reload the extension from `about:debugging`.
 - `background.js` — tracking logic
 - `popup.html` — popup UI
 - `popup.js` — popup rendering
+- `dashboard.html` — dashboard page
+- `dashboard.css` — dashboard styles
+- `dashboard.js` — dashboard data + charts
+- `overlay.js` — bottom-right live timer overlay (content script)
+- `assets/` — shared static assets (logos)
+- `icons/` — extension icons
 
 ## Privacy
 - All data stays on your machine.
