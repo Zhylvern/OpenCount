@@ -120,18 +120,25 @@ function buildTable(target, entries) {
   target.innerHTML = "";
   if (!entries.length) {
     const row = document.createElement("tr");
-    row.innerHTML = "<td colspan='3'>No data yet.</td>";
+    const cell = document.createElement("td");
+    cell.colSpan = 3;
+    cell.textContent = "No data yet.";
+    row.appendChild(cell);
     target.appendChild(row);
     return;
   }
 
   entries.forEach(([domain, data]) => {
     const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${domain}</td>
-      <td>${data.visits}</td>
-      <td>${formatTime(data.activeTimeMs)}</td>
-    `;
+    const domainCell = document.createElement("td");
+    domainCell.textContent = domain;
+    const visitsCell = document.createElement("td");
+    visitsCell.textContent = String(data.visits);
+    const timeCell = document.createElement("td");
+    timeCell.textContent = formatTime(data.activeTimeMs);
+    row.appendChild(domainCell);
+    row.appendChild(visitsCell);
+    row.appendChild(timeCell);
     target.appendChild(row);
   });
 }
